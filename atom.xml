@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://ginwaa.github.io</id>
     <title>502 Bad Gateway</title>
-    <updated>2021-05-13T11:31:05.984Z</updated>
+    <updated>2021-05-13T12:19:34.380Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://ginwaa.github.io"/>
     <link rel="self" href="https://ginwaa.github.io/atom.xml"/>
@@ -12,8 +12,8 @@
     <rights>All rights reserved 2021, 502 Bad Gateway</rights>
     <entry>
         <title type="html"><![CDATA[线段树]]></title>
-        <id>https://ginwaa.github.io/post/xian-duan-shu/</id>
-        <link href="https://ginwaa.github.io/post/xian-duan-shu/">
+        <id>https://ginwaa.github.io/xian-duan-shu/</id>
+        <link href="https://ginwaa.github.io/xian-duan-shu/">
         </link>
         <updated>2021-05-13T10:45:27.000Z</updated>
         <summary type="html"><![CDATA[<p>增加与修改值及其求和，lazytag<br>
@@ -21,125 +21,6 @@
 ]]></summary>
         <content type="html"><![CDATA[<p>增加与修改值及其求和，lazytag<br>
 增加最大值查找及其单点修改，最小值可类比</p>
-<!-- more -->
-<pre><code>ll lazy[N &lt;&lt; 2], Tree[N &lt;&lt; 2],a[N],n;//a为初数组
-
-void build(const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)//建树
-{
-	if (Left == Right) 
-	{
-		Tree[TreeNode] = a[Left];
-		return;
-	}
-	ll Mid = (Left+Right)&gt;&gt;1;
-	build(Left, Mid, TreeNode&lt;&lt;1), build(Mid+1, Right,TreeNode&lt;&lt;1|1);
-	Tree[TreeNode] = Tree[TreeNode&lt;&lt;1] + Tree[TreeNode&lt;&lt;1 | 1];
-}
-void Mxbuild(ll Left=1, ll Right=n, ll TreeNode=1)//建树
-{
-	if (Left == Right) 
-	{
-		Tree[TreeNode] = a[Left];
-		return;
-	}
-	ll Mid = (Left+Right)&gt;&gt;1;
-	Mxbuild(Left, Mid, TreeNode&lt;&lt;1), Mxbuild(Mid+1, Right,TreeNode&lt;&lt;1| 1);
-	Tree[TreeNode] = max(Tree[TreeNode&lt;&lt;1] , Tree[TreeNode&lt;&lt;1|1]);
-}
-void update(const ll&amp; RangeL, const ll&amp; RangeR, const ll&amp; Val, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)//区间增加：l,r为增加区间，c为增加值
-{
-	if (RangeL &lt;= Left &amp;&amp; Right &lt;= RangeR) 
-	{
-		Tree[TreeNode] += (Right - Left + 1) * Val;
-		lazy[TreeNode] += Val;
-		return;
-	}
-	ll Mid = (Left + Right) &gt;&gt;1;
-	if (lazy[TreeNode] &amp;&amp; Left != Right) 
-	{
-		Tree[TreeNode&lt;&lt;1] += lazy[TreeNode] * (Mid - Left + 1);
-		Tree[TreeNode&lt;&lt;1| 1] += lazy[TreeNode] * (Right - Mid);
-		lazy[TreeNode&lt;&lt;1] += lazy[TreeNode];
-		lazy[TreeNode&lt;&lt;1| 1] += lazy[TreeNode];
-		lazy[TreeNode] = 0;
-	}
-	if (RangeL &lt;= Mid) update(RangeL, RangeR, Val, Left, Mid, TreeNode&lt;&lt;1);
-	if (RangeR &gt; Mid) update(RangeL, RangeR, Val, Mid + 1, Right, TreeNode&lt;&lt;1|1);
-	Tree[TreeNode] = Tree[TreeNode&lt;&lt;1] + Tree[TreeNode&lt;&lt;1| 1];
-}
-ll getsum(const ll&amp; RangeL,const ll&amp; RangeR, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)//区间增加的求和：l,r为增加区间
-{
-	if (RangeL &lt;= Left &amp;&amp; Right &lt;= RangeR) return Tree[TreeNode];
-	ll Mid = (Left + Right) &gt;&gt;1;
-	if (lazy[TreeNode]) 
-	{
-		Tree[TreeNode&lt;&lt;1] += lazy[TreeNode] * (Mid - Left + 1);
-		Tree[TreeNode&lt;&lt;1| 1] += lazy[TreeNode] * (Right - Mid);
-		lazy[TreeNode&lt;&lt;1] += lazy[TreeNode], lazy[TreeNode&lt;&lt;1|1] += lazy[TreeNode];
-		lazy[TreeNode] = 0;
-	}
-	ll sum = 0;
-	if (RangeL &lt;= Mid) sum = getsum(RangeL, RangeR, Left, Mid, TreeNode&lt;&lt;1);
-	if (RangeR &gt; Mid) sum += getsum(RangeL, RangeR, Mid + 1, Right, TreeNode&lt;&lt;1| 1);
-	return sum;
-}
-ll bgetsum(const ll&amp; RangeL, const ll&amp; RangeR, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)//区间值修改的求和：l,r为求和区间
-{
-	if (RangeL &lt;= Left &amp;&amp; Right &lt;= RangeR) return Tree[TreeNode];
-	ll m = (Left + Right) / 2;
-	if (lazy[TreeNode]) 
-	{
-		Tree[TreeNode&lt;&lt;1] = lazy[TreeNode] * (m - Left + 1);
-		Tree[TreeNode&lt;&lt;1| 1] = lazy[TreeNode] * (Right - m);
-		lazy[TreeNode&lt;&lt;1] = lazy[TreeNode&lt;&lt;1| 1] = lazy[TreeNode];
-		lazy[TreeNode] = 0;
-	}
-	ll sum = 0;
-	if (RangeL &lt;= m) sum = bgetsum(RangeL, RangeR, Left, m, TreeNode&lt;&lt;1);
-	if (RangeR &gt; m) sum += bgetsum(RangeL, RangeR, m + 1, Right, TreeNode&lt;&lt;1| 1);
-	return sum;
-}
-void bupdate(const ll&amp; RangeL, const ll&amp; RangeR, const ll&amp; Val, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)//区间值修改：l,r为修改区间，c为修改目标值
-{
-	if (RangeL &lt;= Left &amp;&amp; Right &lt;= RangeR) 
-	{
-		Tree[TreeNode] = (Right - Left + 1) * Val;
-		lazy[TreeNode] = Val;
-		return;
-	}
-	ll m = (Left + Right) / 2;
-	if (lazy[TreeNode]) 
-	{
-		Tree[TreeNode&lt;&lt;1] = lazy[TreeNode] * (m - Left + 1);
-		Tree[TreeNode&lt;&lt;1| 1] = lazy[TreeNode] * (Right - m);
-		lazy[TreeNode&lt;&lt;1] = lazy[TreeNode&lt;&lt;1| 1] = lazy[TreeNode];
-		lazy[TreeNode] = 0;
-	}
-	if (RangeL &lt;= m) bupdate(RangeL, RangeR, Val, Left, m, TreeNode&lt;&lt;1);
-	if (RangeR &gt; m) bupdate(RangeL, RangeR, Val, m + 1, Right, TreeNode&lt;&lt;1| 1);
-	Tree[TreeNode] = Tree[TreeNode&lt;&lt;1] + Tree[TreeNode&lt;&lt;1| 1];
-}
-void Mxupdate(const ll&amp; Target, const ll&amp; Val, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)
-{
-	if (Left == Right) 
-	{
-		Tree[TreeNode] = max(Tree[TreeNode], Val);
-		return;
-	}
-	ll Mid = (Left + Right) &gt;&gt; 1;
-	if (Target &lt;= Mid) Mxupdate(Target, Val, Left, Mid, TreeNode &lt;&lt; 1);
-	else Mxupdate(Target, Val, Mid + 1, Right, TreeNode &lt;&lt; 1 | 1);
-	Tree[TreeNode] = max(Tree[TreeNode &lt;&lt; 1], Tree[TreeNode &lt;&lt; 1 | 1]);
-}
-ll Mxquery(const ll&amp; RangeL, const ll&amp; RangeR, const ll&amp; Left=1, const ll&amp; Right=n, const ll&amp; TreeNode=1)
-{
-	if (RangeL &lt;= Left &amp;&amp; Right &lt;= RangeR) return Tree[TreeNode];
-	ll Mid = (Left + Right) &gt;&gt; 1,ans=0;
-	if (RangeL &lt;= Mid) ans = max(ans, Mxquery(RangeL, RangeR, Left, Mid, TreeNode &lt;&lt; 1));
-	if (RangeR &gt; Mid) ans = max(ans, Mxquery(RangeL, RangeR, Mid + 1, Right, TreeNode &lt;&lt; 1 | 1));
-	return ans;
-}
-</code></pre>
 ]]></content>
     </entry>
 </feed>
